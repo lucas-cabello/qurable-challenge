@@ -1,30 +1,5 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+# Qurable Challenge: Coupon Redemption System
 
 ## Project setup
 
@@ -32,68 +7,111 @@
 $ npm install
 ```
 
-## Compile and run the project
+## Run the project
 
 ```bash
 # development
 $ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
 
-## Run tests
+## Development
 
-```bash
-# unit tests
-$ npm run test
+The proposed solution to the coupon redemption system consist of a NestJS API connected to a MongoDB database.
 
-# e2e tests
-$ npm run test:e2e
+The DB stores two main entities with embedded documents for the coupons:
 
-# test coverage
-$ npm run test:cov
+User
+```json
+{
+  "firstname": string,
+  "lastname": string,
+  "email": string,
+  "coupons": UserCoupon[],
+}
+```
+UserCoupon (Embedded)
+```json
+{
+  "code": string,
+  "discount": number,
+  "used": boolean,
+  "couponBookId": string,
+}
+```
+CouponBook
+```json
+{
+  "name": string,
+  "description": string,
+  "maxCouponAmount": number,
+  "maxCouponPerUser": number,
+  "coupons": Coupon[],
+}
+```
+Coupon (Embedded)
+```json
+{
+  "code": string,
+  "discount": number,
+  "used": boolean,
+  "userId": string,
+}
 ```
 
-## Deployment
+CouponBook is the aggregate that handles the coupon creation, assignment and redeem logic. It contains the maxCouponAmount and maxCouponPerUser
+properties that enforce the business rules that restrict the creation and assignment of coupons.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+User holds the list of coupons assigned to the user but doesn't enforce any rule, it's just to be able to list the coupons used or assigned
+to a certain user in a more performant way.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+In the [coupon-book.service.ts](./src/coupon-book/coupon-book.service.ts) resides the main logic that enforces the business rules defined in
+the requirements. The queries implemented in the methods assignCoupon and redeemCoupon are designed to check the constraints and update in
+the same atomic operation so that concurrent updates won't cause problems. 
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+### Requested solution
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+In this challenge, you'll be designing and implementing a coupon redemption system to be
+integrated into an existing checkout cart for an eCommerce platform. You do not need to
+build the entire checkout cart (you can mock the experience)—the checkout flow
+already exists, and your task is to implement the functionality where users can apply a
+coupon code to receive a discount.
+Coupons can offer various discount percentages (e.g., 5%, 10%, 20%), and must be validated
+based on availability and specific rules. The system will manage coupon codes, track their
+usage, and ensure that once a coupon is redeemed, it cannot be reused. You will also need to
+handle the assignment of gift cards (as new coupon codes) after a purchase is completed.
+After a purchase is completed, the system should assign a gift card to the user in the form of
+a coupon code. The gift card can be:
+- Randomly generated by the system, or .
+- Explicitly assigned by the eCommerce system (non-random).
 
-## Resources
+### Functional Specs:
 
-Check out a few resources that may come in handy when working with NestJS:
+1. Users can input coupon codes to receive a discount during checkout.
+2. After a successful purchase, a gift card (new coupon code) will be automatically generated or assigned to the user .
+3. Coupon Redemption:
+    1. A user should be able to redeem a coupon by providing its code.
+    2. A redeemed coupon cannot be reused.
+    3. The system should allow for both assigning and redeeming a coupon in a single operation if required.
+4. Coupon Inventory:
+    1. A maximum number of coupons per user must be specified.
+    2. A maximum number of coupons per coupon book must be specified.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Additional Considerations:
 
-## Support
+1. You can design a website + middleware or just an API
+2. SQL or NoSQL databases can be used for the exercise
+3. Do not overdesign, keep it simple, but think about scalability and potential challenges
+4. Identify key technical problems in the challenge
+5. You can skip adding styles to the website or choose something basic
+6. You can make assumptions or hypotheses to move forward if something is unclear
+7. You can ask questions to the team as many times as needed if you have doubts (there is no limit on the number of questions)
+8. Feel free to use AI to help, but be prepared to be asked questions and go deep on the technical challenges and what if scenarios
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Deliverables:
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+1. Pseudo code or Source Code (github preferred). Pseudocode is fine
+2. Description of the solution
+3. Ability to discuss and go deep on how the system would operate efficiently under
+   high load, with many users interacting simultaneously and if implementing this
+   solution in real life
+4. Expected Stack: Node, TS

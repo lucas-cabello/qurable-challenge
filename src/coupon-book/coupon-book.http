@@ -1,0 +1,48 @@
+### Get couponBooks
+GET http://localhost:3000/coupon-book
+
+### Create couponBook
+POST http://localhost:3000/coupon-book
+Content-Type: application/json
+
+{
+  "name": "Sky Airlines Promo A59FJ2W",
+  "description": "Promo for xmas holidays",
+  "maxCouponAmount": 10,
+  "maxCouponPerUser": 2
+}
+
+> {%
+  client.global.set("couponBookId", response.body["_id"])
+%}
+
+### Get couponBook by Id
+GET http://localhost:3000/coupon-book/{{couponBookId}}
+
+### Update couponBook
+PATCH http://localhost:3000/coupon-book/{{couponBookId}}
+Content-Type: application/json
+
+{
+  "name": "Sky Airlines Promo A59FJ2W",
+  "description": "Promo for xmas holidays",
+  "maxCouponAmount": 12,
+  "maxCouponPerUser": 4
+}
+
+### Assign coupon to user
+POST http://localhost:3000/coupon-book/{{couponBookId}}/assign
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}"
+}
+
+### Redeem a coupon
+POST http://localhost:3000/coupon-book/{{couponBookId}}/redeem
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "couponCode": "78IORYUV"
+}

@@ -1,0 +1,36 @@
+### Create user
+POST http://localhost:3000/user
+Content-Type: application/json
+
+{
+  "firstname": "Lucas",
+  "lastname": "Cabello",
+  "email": "lucas_cabello@hotmail.com"
+}
+
+> {%
+  client.global.set("userId", response.body["_id"])
+%}
+
+### Get users
+GET http://localhost:3000/user
+
+> {%
+  client.global.set("userId", response.body[0]["_id"])
+%}
+
+### Get user by Id
+GET http://localhost:3000/user/{{userId}}
+
+### Update user
+PATCH http://localhost:3000/user/{{userId}}
+Content-Type: application/json
+
+{
+  "firstname": "Lucas",
+  "lastname": "Cabello"
+}
+
+### Check coupon availability
+@couponCode = TH0KOIK0
+GET http://localhost:3000/user/{{userId}}/coupon/{{couponCode}}
